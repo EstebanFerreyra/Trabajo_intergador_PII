@@ -1,2 +1,2 @@
 # Trabajo_intergador_PII
-Sistema de gestion de ventas de monopatines electricos
+Sistema de gestión de ventas de monopatines eléctricos
