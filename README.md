@@ -10,6 +10,7 @@ Desde el siguiente link vas a poder visualizar las tablas de nuestra base de dat
 https://inloop.github.io/sqlite-viewer/
 
 El software permite manipular datos ingresados manualmente, utilizando SQLite. Permite realizar las siguientes operaciones:
+¡ATENCION! - En caso de ser el primer uso del programa de debe ingresar al apartado crear una tabla 
  - Crear una tabla 
  - Borrar tablas
  - Cargar datos en la tabla

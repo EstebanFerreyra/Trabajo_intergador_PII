@@ -1,6 +1,8 @@
 from datetime import date, datetime
 import sqlite3
 
+#¡ATENCION! - En caso de ser el primer uso del programa de debe ingresar al apartado crear una tabla
+
 # Creamos la clase ProgramaPrincipal para crear un objeto programa y comenzar la ejecucion de la aplicacion 
 class ProgramaPrincipal:
 
@@ -10,12 +12,13 @@ class ProgramaPrincipal:
         while opcion != 0:
             print("\n--------------------------------------------------------------------------")
             print("\tMENU DE OPCIONES")
+            print("¡ATENCION! - En caso de ser el primer uso del programa de debe ingresar al apartado crear una tabla")
             print("8 - Crear tabla principal")
             print("9 - Borrar tablas")
             print("1 - Cargar datos")
             print("2 - Modificar precio de una unidad")
             print("3 - Borrar una unidad")
-            print("4 - Cargar disponibilidad")
+            print("4 - Aumentar disponibilidad (+1)")
             print("5 - Mostrar listado de productos actuales")
             print("6 - Actualizar a precio dolar - Mostrar registros historicos")
             print("7 - Mostrar registros anteriores a una fecha en específico")
@@ -250,7 +253,6 @@ class Monopatin():
         conexion = Conexiones()
         conexion.abrirConexion()
         try:
-            ##############################!
             conexion.miCursor.execute("UPDATE HistoricoMono * SELECT * FROM Monopatin")  
             conexion.miConexion.commit()
         except:
@@ -271,5 +273,8 @@ except:
 finally:
     print("Fin del programa")
 
+
+# Las lineas 279 y 280 nos permiten hacer la misma ejecucion del programa pero, en caso de error
+# nos mostraran los errores detalladamente
 """programa = ProgramaPrincipal()
 programa.menu()"""
