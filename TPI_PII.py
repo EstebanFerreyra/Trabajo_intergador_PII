@@ -1,6 +1,7 @@
 from datetime import date, datetime
 import sqlite3
 
+# Creamos la clase ProgramaPrincipal para crear un objeto programa y comenzar la ejecucion de la aplicacion 
 class ProgramaPrincipal:
 
     # Creacion del manu principal
@@ -11,17 +12,17 @@ class ProgramaPrincipal:
             print("\tMENU DE OPCIONES")
             print("8 - Crear tabla principal")
             print("9 - Borrar tablas")
-            print("1 - Cargar monopatienes")
-            print("2 - Modificar datos de un monopatin")
-            print("3 - Borrar un monopatin")
+            print("1 - Cargar datos")
+            print("2 - Modificar precio de una unidad")
+            print("3 - Borrar una unidad")
             print("4 - Cargar disponibilidad")
-            print("5 - Mostrar listado de productos")
-            print("6 - Actualizar precio dolar - Mostrar registros historicos")
+            print("5 - Mostrar listado de productos actuales")
+            print("6 - Actualizar a precio dolar - Mostrar registros historicos")
             print("7 - Mostrar registros anteriores a una fecha en específico")
             print("0 - Salir")
             opcion = int(input("Ingrese el numero correspondiente a la opcion: "))
             print("--------------------------------------------------------------------------")
-            if opcion >=0 and opcion <= 10:
+            if opcion >=0 and opcion <= 9:
                 if opcion == 0:
                     break
 
@@ -60,6 +61,7 @@ class ProgramaPrincipal:
                     Monopatin.obtener_monopatines(self, sql)
 
                 elif opcion == 6:
+                    # Variable aumento_dolar para indicar porcentaje de aumento de acuerdo al dolar
                     aumento_dolar: float = 0.23
                     sql = "UPDATE Monopatin SET precio=precio+(precio*'{}') ".format(aumento_dolar)
                     sql2 = "UPDATE Monopatin SET fechaUltimoPrecio='{}' ".format(date.today())
@@ -86,23 +88,26 @@ class ProgramaPrincipal:
                     sql = "CREATE TABLE Monopatin (_id INTEGER PRIMARY KEY , modelo VARCHAR(30), marca  VARCHAR(30), potencia VARCHAR(30), precio REAL, color VARCHAR(30), stock INTEGER, fechaUltimoPrecio DATETIME)"
                     borrar_sql2 = "DROP TABLE IF EXISTS HistoricoMono"
                     sql2 = "CREATE TABLE HistoricoMono (_id INTEGER PRIMARY KEY , modelo VARCHAR(30), marca  VARCHAR(30), potencia VARCHAR(30), precio REAL, color VARCHAR(30), stock INTEGER, fechaUltimoPrecio DATETIME)"
-                    self.crearTablas(borrar_sql, sql, borrar_sql2, sql2)
+                    self.crearTablas(borrar_sql, sql)
+                    self.crearTablas(borrar_sql2, sql2)
 
                 elif opcion == 9:
                     # Apartado para borrar las tablas de nuestra base de datos
-                    self.borrar_tablas()
+                    sql = "DROP TABLE IF EXISTS Monopatin"
+                    sql2 = "DROP TABLE IF EXISTS HistoricoMono"
+                    self.borrar_tablas(sql)
+                    self.borrar_tablas(sql2)
             else:
                 print("Opcion incorrecta - Reingresar")
 
     # Funcion para crear tablas en nuestra base de datos SQLite
-    def crearTablas(self, borrar_sql, sql, borrar_sql2, sql2) -> None:
+    # Definimos que la funcion reciba dos parametros (comandos SQL) para poder reutilizar
+    def crearTablas(self, borrar_sql, sql) -> None:
         conexion = Conexiones() 
         conexion.abrirConexion() 
         try:
             conexion.miCursor.execute(borrar_sql)
-            conexion.miCursor.execute(sql)
-            conexion.miCursor.execute(borrar_sql2)
-            conexion.miCursor.execute(sql2)    
+            conexion.miCursor.execute(sql)    
             conexion.miConexion.commit()
             print("Tabla creada correctamente")
         except:
@@ -111,12 +116,11 @@ class ProgramaPrincipal:
             conexion.cerrarConexion() 
 
     # Funcion para borrar tablas en nuestra base de datos SQLite
-    def borrar_tablas(self) -> None:
+    def borrar_tablas(self, sql) -> None:
         conexion = Conexiones() 
         conexion.abrirConexion()
         try:
-            conexion.miCursor.execute("DROP TABLE IF EXISTS Monopatin")
-            conexion.miCursor.execute("DROP TABLE IF EXISTS HistoricoMono")
+            conexion.miCursor.execute(sql)
             conexion.miConexion.commit()   
             print("Tabla monopatines eliminada correctamente")
         except:
@@ -125,6 +129,7 @@ class ProgramaPrincipal:
             conexion.cerrarConexion() 
 
 
+# Creamos esta clase para crear un objeto que nos permita interactuar con la base de datos
 class Conexiones:
 
     # Metodo para abrir la conexion con nuestra base de datos
@@ -137,6 +142,7 @@ class Conexiones:
         self.miConexion.close() 
 
 
+# Creamos esta clase para crear monopatines
 class Monopatin():
 
     # Variable de clase para llevar un ID de cada monopatin creado
@@ -180,9 +186,9 @@ class Monopatin():
         try:
             conexion.miCursor.execute("UPDATE Monopatin SET precio='{}' where _id='{}' ".format(nuevo_precio, nuevo_id))
             conexion.miConexion.commit()
-            print("Monopatin modificado correctamente")
+            print("Precio modificado correctamente")
         except:
-            print('Error al actualizar un Monopatin')
+            print('Error al actualizar el precio')
         finally:
             conexion.cerrarConexion()
 
@@ -244,6 +250,7 @@ class Monopatin():
         conexion = Conexiones()
         conexion.abrirConexion()
         try:
+            ##############################!
             conexion.miCursor.execute("UPDATE HistoricoMono * SELECT * FROM Monopatin")  
             conexion.miConexion.commit()
         except:
