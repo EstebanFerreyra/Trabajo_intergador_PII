@@ -9,21 +9,22 @@ class ProgramaPrincipal:
         while opcion != 0:
             print("\n--------------------------------------------------------------------------")
             print("\tMENU DE OPCIONES")
+            print("8 - Crear tabla principal")
+            print("9 - Borrar tablas")
             print("1 - Cargar monopatienes")
             print("2 - Modificar datos de un monopatin")
             print("3 - Borrar un monopatin")
             print("4 - Cargar disponibilidad")
-            print("5 - Listado de productos")
-            print("6 - Tabla de historico/precios")
-            print("7 - Registros anteriores a una fecha en específico de la tabla monopatin")
-            print("8 - CREAR TABLA MONOPATINES")
-            print("9 - BORRAR TABLA MONOPATINES")
+            print("5 - Mostrar listado de productos")
+            print("6 - Actualizar precio dolar - Mostrar registros historicos")
+            print("7 - Mostrar registros anteriores a una fecha en específico")
             print("0 - Salir")
-            opcion = int(input("Ingrese el numero correspondiente a la seccion: "))
+            opcion = int(input("Ingrese el numero correspondiente a la opcion: "))
             print("--------------------------------------------------------------------------")
             if opcion >=0 and opcion <= 10:
                 if opcion == 0:
                     break
+
                 elif opcion == 1:
                     print("\n\tCARGA DE MONOPATINES")
                     modelo = str(input("Ingrese el modelo del monopatin: "))
@@ -35,48 +36,58 @@ class ProgramaPrincipal:
                     fechaUltimoPrecio = date.today()
                     nuevo_monopatin = Monopatin(modelo, marca, potencia, precio, color, stock, fechaUltimoPrecio)
                     nuevo_monopatin.cargar_monopatin()
+
                 elif opcion == 2:
                     print("\n\tMODIFCAR EL PRECIO DE UN MONOPATIN")
                     nuevo_id = int(input("Ingrese ID del monopatin que desea modificar: "))
                     nuevo_precio = float(input("Ingrese el nuevo precio del monopatin: "))
                     Monopatin.modificar_precio(self, nuevo_id, nuevo_precio)
+
                 elif opcion == 3:
                     print("\n\tELIMINAR MONOPATIN")
                     borrar_id = int(input("Ingrese ID del monopatin que desea eliminar: "))
                     Monopatin.eliminar_monopatin(self, borrar_id) 
+
                 elif opcion == 4:
                     print("\n\tMODIFICAR DISPONIBILIDAD")
                     nuevo_marca = str(input("Ingrese la marca del monopatin que desea modificar la disponibilidad: "))
                     Monopatin.cargar_disponibilidad(self, nuevo_marca)
+
                 elif opcion == 5:
                     print("\n\tLISTADO DE MONOPATINES")
-                    Monopatin.obtener_monopatines(self, "SELECT * FROM Monopatin")
+                    print("ID | MODELO | MARCA | POTENCIA | PRECIO | COLOR | STOCK | FECHA ")
+                    sql = "SELECT * FROM Monopatin"
+                    Monopatin.obtener_monopatines(self, sql)
+
                 elif opcion == 6:
-                    aumento: float = 0.23
-                    sql = "CREATE TABLE HistoricoMono (_id INTEGER PRIMARY KEY , modelo VARCHAR(30), marca  VARCHAR(30), potencia VARCHAR(30), precio REAL, color VARCHAR(30), stock INTEGER, fechaUltimoPrecio DATATIME)"
-                    borrar_sql = "DROP TABLE IF EXISTS HistoricoMono"
-                    self.crearTablas(borrar_sql, sql)
-                    # llamar a crear tabla y crear la nueva
-                    """Por el aumento del dólar se decidió actualizar los precios de todos los monopatines en un 23%. 
-                    Se desea mantener el historial de registros de precios actuales. 
-                    Insertar los registros viejos en una tabla llamada “historicoprecios” y 
-                    actualizar el precio y fecha en la tabla monopatin. 
-                    Para este punto se debe de crear la tabla historico_mono que tendrá exactamente las mismas 
-                    características que la tabla monopatin. Previo a actualizar los precios en la tabla monopatin, 
-                    se deberá de insertar los datos actuales en la tabla historico_mono"""
-                    # lista 
+                    aumento_dolar: float = 0.23
+                    sql = "UPDATE Monopatin SET precio=precio+(precio*'{}') ".format(aumento_dolar)
+                    sql2 = "UPDATE Monopatin SET fechaUltimoPrecio='{}' ".format(date.today())
+                    Monopatin.actualizar_a_dolar(self, sql, sql2)
+                    sql3 = "SELECT * FROM HistoricoMono"
+                    print("\n\tTABLA REGISTROS HISTORICOS")
+                    print("ID | MODELO | MARCA | POTENCIA | PRECIO | COLOR | STOCK | FECHA ")
+                    Monopatin.actualizar_historica(self)
+                    Monopatin.obtener_monopatines(self, sql3)
+
                 elif opcion == 7:
-                    # ! CAMBIAR EL SELEC POR EL QUE FILTRA POR FECHA
-                    # ? VER COMO HACER PARA QUE MUSTRE HASTA TAL FECHA
                     print("\n\tREGISTROS ANTERIORES")
-                    fecha_ingresada = str(input("Ingrese la fecha hasta donde desee ver los registros: "))
-                    #Monopatin.obtener_monopatines(self, "SELECT * FROM Monopatin where fechaUltimoPrecio > {} ".format(fecha_ingresada))
-                    Monopatin.obtener_monopatines(self, "SELECT * FROM Monopatin where fechaUltimoPrecio BETWEEN '0000-00-00' AND {} ".format(fecha_ingresada))
+                    anio = str(input("Ingrese el año: "))
+                    mes = str(input("Ingrese el mes: "))
+                    dia = str(input("Ingrese el dia: "))
+                    fecha_ingresada = date(int(anio), int(mes), int(dia))
+                    fecha_cero = date(1000,1,1)
+                    print("ID | MODELO | MARCA | POTENCIA | PRECIO | COLOR | STOCK | FECHA ")
+                    Monopatin.obtener_monopatines(self, "SELECT * FROM Monopatin where fechaUltimoPrecio BETWEEN '{}' AND '{}' ".format(fecha_cero, fecha_ingresada))
+                
                 elif opcion == 8:
                     # Apartado para crear la tabla donde vamos a guardar los datos de los monopatines creados
                     borrar_sql = "DROP TABLE IF EXISTS Monopatin"
-                    sql = "CREATE TABLE Monopatin (_id INTEGER PRIMARY KEY , modelo VARCHAR(30), marca  VARCHAR(30), potencia VARCHAR(30), precio REAL, color VARCHAR(30), stock INTEGER, fechaUltimoPrecio DATATIME)"
-                    self.crearTablas(borrar_sql, sql)
+                    sql = "CREATE TABLE Monopatin (_id INTEGER PRIMARY KEY , modelo VARCHAR(30), marca  VARCHAR(30), potencia VARCHAR(30), precio REAL, color VARCHAR(30), stock INTEGER, fechaUltimoPrecio DATETIME)"
+                    borrar_sql2 = "DROP TABLE IF EXISTS HistoricoMono"
+                    sql2 = "CREATE TABLE HistoricoMono (_id INTEGER PRIMARY KEY , modelo VARCHAR(30), marca  VARCHAR(30), potencia VARCHAR(30), precio REAL, color VARCHAR(30), stock INTEGER, fechaUltimoPrecio DATETIME)"
+                    self.crearTablas(borrar_sql, sql, borrar_sql2, sql2)
+
                 elif opcion == 9:
                     # Apartado para borrar las tablas de nuestra base de datos
                     self.borrar_tablas()
@@ -84,12 +95,14 @@ class ProgramaPrincipal:
                 print("Opcion incorrecta - Reingresar")
 
     # Funcion para crear tablas en nuestra base de datos SQLite
-    def crearTablas(self, borrar_sql, sql) -> None:
+    def crearTablas(self, borrar_sql, sql, borrar_sql2, sql2) -> None:
         conexion = Conexiones() 
         conexion.abrirConexion() 
         try:
             conexion.miCursor.execute(borrar_sql)
-            conexion.miCursor.execute(sql)    
+            conexion.miCursor.execute(sql)
+            conexion.miCursor.execute(borrar_sql2)
+            conexion.miCursor.execute(sql2)    
             conexion.miConexion.commit()
             print("Tabla creada correctamente")
         except:
@@ -103,6 +116,7 @@ class ProgramaPrincipal:
         conexion.abrirConexion()
         try:
             conexion.miCursor.execute("DROP TABLE IF EXISTS Monopatin")
+            conexion.miCursor.execute("DROP TABLE IF EXISTS HistoricoMono")
             conexion.miConexion.commit()   
             print("Tabla monopatines eliminada correctamente")
         except:
@@ -151,6 +165,7 @@ class Monopatin():
         conexion.abrirConexion()
         try:
             conexion.miCursor.execute("INSERT INTO Monopatin(modelo,marca,potencia,precio,color,stock,fechaUltimoPrecio) VALUES('{}', '{}','{}','{}','{}','{}','{}')".format(self.modelo, self.marca, self.potencia, self.precio, self.color, self.stock, self.fechaUltimoPrecio))
+            conexion.miCursor.execute("INSERT INTO HistoricoMono(modelo,marca,potencia,precio,color,stock,fechaUltimoPrecio) VALUES('{}', '{}','{}','{}','{}','{}','{}')".format(self.modelo, self.marca, self.potencia, self.precio, self.color, self.stock, self.fechaUltimoPrecio))
             conexion.miConexion.commit()
             print("Monopatin cargado exitosamente")
         except:
@@ -184,20 +199,14 @@ class Monopatin():
         finally:
             conexion.cerrarConexion()
 
-    # Metodo para aumentar la disponibilidad de un monopatin dado su ID
+    # Metodo para aumentar la disponibilidad de un monopatin dado la marca
     def cargar_disponibilidad(self, nuevo_marca) -> None:
         conexion = Conexiones()
         conexion.abrirConexion()
         try:
-            # Obtenemos el stock desde la marca ingresada
-            conexion.miCursor.execute("SELECT stock FROM Monopatin where marca='{}' ".format(nuevo_marca))
-            stock_obtenido = conexion.miCursor.fetchall()
-            # Obtenemos solo parte entera (con los indices[0][0]) y le sumamos uno al nuevo_stock
-            nuevo_stock = stock_obtenido[0][0] + 1
-            # Actualizamos la tabla 
-            conexion.miCursor.execute("UPDATE Monopatin SET stock='{}' where marca='{}' ".format(nuevo_stock, nuevo_marca))
+            conexion.miCursor.execute("UPDATE Monopatin SET stock=stock+1 where marca='{}'".format(nuevo_marca))
             conexion.miConexion.commit()
-            print("Stock modificado correctamente: {}".format(nuevo_stock))
+            print("Stock modificado correctamente")
         except:
             print('Error al actualizar un Monopatin')
         finally:
@@ -217,7 +226,33 @@ class Monopatin():
         finally:
             conexion.cerrarConexion()
 
+    # Metodo para actualizar el precio en la tabla Monopatin
+    def actualizar_a_dolar(self, sql, sql2) -> None:
+        conexion = Conexiones()
+        conexion.abrirConexion()
+        try:
+            conexion.miCursor.execute(sql)
+            conexion.miCursor.execute(sql2)
+            conexion.miConexion.commit()
+        except:
+            print("Error al actualizar los precios y las fechas")
+        finally:
+            conexion.cerrarConexion()
 
+    # Metodo para actualizar la tabla historica
+    def actualizar_historica(self) -> None:
+        conexion = Conexiones()
+        conexion.abrirConexion()
+        try:
+            conexion.miCursor.execute("UPDATE HistoricoMono * SELECT * FROM Monopatin")  
+            conexion.miConexion.commit()
+        except:
+            print("Error al actualizar la tabla historica")
+        finally:
+            conexion.cerrarConexion()
+
+# Creacion del objeto programa
+# Comienzo de la ejecucion de nuestra aplicacion
 try:
     programa = ProgramaPrincipal()
     programa.menu()
